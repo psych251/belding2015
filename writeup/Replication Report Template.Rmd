@@ -49,7 +49,7 @@ Note: Effie commented the following:
 
 ### Planned Sample
 
-120 participants were recruited on Prolific, an online platform for recruiting research participants. All participants were preselected to meet the following criteria:
+120 participants will be recruited on Prolific, an online platform for recruiting research participants. All participants were preselected to meet the following criteria:
 
 - Country of Residence: United States
 - Ethnicity: White/Caucasian
@@ -60,7 +60,7 @@ The sample size was selected to use the \$300 (TODO: or \$400) credit allotted t
 
 ### Materials
 
-The materials for this replication study were taken directly from the supplementary materials provided by the original study: (TODO: link)
+The materials for this replication study were taken directly from the supplementary materials provided by the original study: [Link](https://github.com/psych251/belding2015/blob/main/original_paper/10.1177_0146167215580776_online_appendix.pdf)
 
 The original text and survey options for each task can be found on the following pages of the supplementary materials linked above:
 
