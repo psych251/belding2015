@@ -1,0 +1,176 @@
+---
+title: "Replication of \"Using High-Level Construal and Perceptions of Changeability to Promote Self-Change Over Self-Protection Motives in Response to Negative Feedback\" by Jennifer N. Belding, Karen Z. Naufel, and Kentaro Fujita (2015, Personality and Social Bulletin)"
+author: "Alan Cheng (ayc@stanford.edu)"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+---
+
+<!-- Replication reports should all use this template to standardize reporting across projects.  These reports will be public supplementary materials that accompany the summary report(s) of the aggregate results. -->
+
+### Justification for choice of study
+
+I selected this study for two reasons:
+
+1. My research interest is in education and technology, and many edtech systems rely on the ability of technology to give immediate feedback to learners. Therefore, the subject of feedback from a psychological perspective is relevant to my research.
+
+2. Study 3A was conducted online with crowdworkers and all the materials appear to be available either in appendices or in supplementary materials. The experiment also seems relatively straightforward to set up and deploy.
+
+### Overview of procedure and anticipated challenges
+
+Participants will be randomly assigned into two groups. Each group will be given a different construal manipulation task: the "high construal" group will be asked to list reasons *why* they should improve their health, while the "low construal" group will be asked to concrete ways *how* they can improve their health. 
+
+Next, participants will be asked to read one of two versions of a message about skin cancer and skin health (also determined randomly). One version of the message ("high changeability") will explain that skin cancer risk is the result of changeable behaviors, while the other ("low changeability") will suggest that skin cancer risk is due to unchangeable traits.
+
+Finally, participants will be given several questions that assess their reaction to the skin cancer message.
+
+Because of the 2x2 setup of the conditions in this experiment, there is the risk that I may not be able to get a large enough sample size to see signficant results. If this is the case, then I will need to simplify the experiment to test just one manipulation.
+
+### Links
+
+Project repository (on Github): https://github.com/psych251/belding2015
+
+Original paper (as hosted in your repo): https://github.com/psych251/belding2015/blob/main/original_paper/0146167215580776.pdf
+
+
+## Methods
+
+### Power Analysis
+
+TODO: Original effect size, power analysis for samples to achieve 80%, 90%, 95% power to detect that effect size.  Considerations of feasibility for selecting planned sample size.
+
+Note: Effie commented the following:
+
+> The original study recruited N=330 and the analysis of interest is an interaction effect reported with F(1,319)=4.02, p=.05, partial eta squared =.01. [...] g*power suggested that it would require N>1500 for even 80% power
+
+### Planned Sample
+
+120 participants were recruited on Prolific, an online platform for recruiting research participants. All participants were preselected to meet the following criteria:
+
+- Country of Residence: United States
+- Ethnicity: White/Caucasian
+
+This sampling frame was chosen to match the demographics for the original study.
+
+The sample size was selected to use the \$300 (TODO: or \$400) credit allotted to the project. The study took about 10 minutes for each participant, for which they were paid $1.67 (at a rate of \$10/hr). (TODO: perform a trial run of the study to get a more accurate time estimate)
+
+### Materials
+
+The materials for this replication study were taken directly from the supplementary materials provided by the original study: (TODO: link)
+
+The original text and survey options for each task can be found on the following pages of the supplementary materials linked above:
+
+- Construal manipulation task: 11-13
+- Changeability manipulation task: 15-16
+- Dependent variables: 17
+- Demographic questions: 17
+
+The original text and survey options for the construal manipulation task can be found on pg. 11-13.
+
+### Procedure	
+
+Participants first completed the why-how manipulation of construal level. Next, participants were given a skin cancer health message that either portrayed skin cancer risk as highly changeable or not very changeable. Afterward, participants responded to various questions that assess their motivation to seek additional information and their interpretation of the feedback as useful or not useful. Finally, participants answered a few demographic questions, including a question asking whether or not they tan.
+
+### Analysis Plan
+
+Just like the original study, participants who do not follow instructions will be excluded from the data. The original study also excluded participants who were not White/Caucasian, but our preselection on Prolific screened for that already. The original authors did not report on the effects of possible covariates, so I plan to check whether age and gender have an effect on the dependent variables.
+
+The answers to the survey questions measuring the dependent variables (motivation to get additional information and construal of the skin cancer warning message) were all written to fit a 1-7 Likert scale.
+
+We will follow the analysis strategy outline in the original paper:
+
+> We analyzed participants’ motivation to seek additional feedback-consis- tent information as a function of construal level (high-level vs. low-level construal), relevance (tanners vs. non-tanners), and changeability (high vs. low).
+
+The paper reported a significant interaction between construal level, changeability, and relevance, which we will also explore. They report the following findings:
+
+- Engaging in high-level construal generally increased motivation to get additional information relative to low-level construal. (did not replicate in Study 3B)
+- Non-tanners tend to be more motivated to get additional information than tanners. (did not replicate in Study 3B)
+- When one's risk is portrayed as unchangeable, non-tanners are generally more motivated than tanners to seek additional information. (did not replicate in Study 3B)
+- When one's risk is portrayed as changeable, high-level construal generally increased motivation to seek additional information compared to low-level construal. (did not replicate in Study 3B)
+- When one's risk is portrayed as changeable, tanners who engaged in high-level construal were generally more motivated to seek additional information relative to low-level. (**did** replicate in Study 3B)
+
+We will also analyze the effects of our independent variables on the participants' interpretations of the author who wrote the skin cancer warning message:
+
+> We analyzed participants’ attributions of the authors’ intentions as a function of construal level (high-level vs. low-level construal), relevance (tanners vs. non-tanners), and changeability (high vs. low).
+
+The authors of the original paper report these findings:
+
+- Those who were led to believe that skin cancer risk was changeable rather than unchangeable were more likely to interpret the author's intentions as helpful rather than threatening. (did not replicate in Study 3B)
+- Those engaged in high-level construal perceived feedback about changeable risks to be more helpful than unchangeable risks. (did not replicate in Study 3B)
+
+Finally, the authors explored whether interpretations of authors' intentions could be a potential mediator:
+
+> To explore interpretations of authors’ intentions as a potential mediator, we tested the indirect effect of the interaction between construal level, relevance, and change- ability on feedback acceptance (as assessed by motivation for additional feedback-consistent information) through interpretation of the author’s intentions using bias-corrected boot-strapping procedures (n = 1,000) to generate 95% CIs (Preacher & Hayes, 2008; Shrout & Bolger, 2002). These analyses revealed a statistically significant indirect effect in [Study A]: β3A–Indirect = 0.04, CI = [0.001, 0.10]
+
+I have no idea how this analysis works but I could learn about it and try it!
+
+### Differences from Original Study
+
+The original study was conducted on Amazon Mechanical Turk, whereas the replication was done on Prolific, which changes the sampling frame of the replication. In addition, our participants were paid \$1.67 rather than \$0.50. Our sample size is also smaller than the original, which affects our ability to find significant results.
+
+Explicitly describe known differences in sample, setting, procedure, and analysis plan from original study.  The goal, of course, is to minimize those differences, but differences will inevitably occur.  Also, note whether such differences are anticipated to make a difference based on claims in the original article or subsequent published research on the conditions for obtaining the effect.
+
+### Methods Addendum (Post Data Collection)
+
+You can comment this section out prior to final report with data collection.
+
+#### Actual Sample
+  Sample size, demographics, data exclusions based on rules spelled out in analysis plan
+
+#### Differences from pre-data collection methods plan
+  Any differences from what was described as the original plan, or “none”.
+
+
+## Results
+
+
+### Data preparation
+
+Data preparation following the analysis plan. Code is commented out because it has no data to run on yet; see original R Markdown file for (extremely) preliminary code.
+	
+```{r include=F,echo=TRUE}
+###Data Preparation
+
+####Load Relevant Libraries and Functions
+library(rmarkdown)
+library(tidyverse)
+library(knitr)
+library(qualtRics)
+
+####Import data
+#qualtrics_api_credentials(api_key = "XXX", base_url = "stanforduniversity.ca1.qualtrics.com", install = TRUE)
+
+#raw_data = fetch_survey(surveyID = "TODO", force_request = TRUE)
+
+#### Data exclusion / filtering
+
+#filtered_data = raw_data |> filter(is.na(DoNotUse))
+
+#### Prepare data for analysis - create columns etc.
+```
+
+### Confirmatory analysis
+
+TODO: The extent of my ability to run statistical analyses ends at t-tests, so I plan to chat with a TA this week to learn how to replicate the analyses of interaction effects performed in the original study.
+
+The analyses as specified in the analysis plan.  
+
+*Side-by-side graph with original graph is ideal here*
+
+### Exploratory analyses
+
+Any follow-up analyses desired (not required).  
+
+## Discussion
+
+### Summary of Replication Attempt
+
+Open the discussion section with a paragraph summarizing the primary result from the confirmatory analysis and the assessment of whether it replicated, partially replicated, or failed to replicate the original result.  
+
+### Commentary
+
+Add open-ended commentary (if any) reflecting (a) insights from follow-up exploratory analysis, (b) assessment of the meaning of the replication (or not) - e.g., for a failure to replicate, are the differences between original and present study ones that definitely, plausibly, or are unlikely to have been moderators of the result, and (c) discussion of any objections or challenges raised by the current and original authors about the replication attempt.  None of these need to be long.
