@@ -39,24 +39,26 @@ Original paper (as hosted in your repo): https://github.com/psych251/belding2015
 
 ## Methods
 
+The key analysis of interest that I will be reproducing is the following:
+
+> [W]hen one’s risk was portrayed as changeable, high-level construal (M = 3.95, SD = 1.55) generally increased motivation to get supplementary information relative to low-level construal (M = 3.51, SD = 1.74), F(1, 160) = 7.81, p = .006, d = 0.44 (95% CI = [0.18, 0.70]).
+
 ### Power Analysis
 
-TODO: Original effect size, power analysis for samples to achieve 80%, 90%, 95% power to detect that effect size.  Considerations of feasibility for selecting planned sample size.
+A power analysis for an effect size of `f = 0.22` (i.e., `d = 0.44`) using a 2x2x2 fixed effects omnibus ANOVA gives a required sample size of 304 to achieve 80% power, 392 to achieve 90%, and 464 to achieve 95%.
 
-Note: Effie commented the following:
-
-> The original study recruited N=330 and the analysis of interest is an interaction effect reported with F(1,319)=4.02, p=.05, partial eta squared =.01. [...] g*power suggested that it would require N>1500 for even 80% power
+The final sample size will be constrained by budget, since we only have $300 to pay participants with.
 
 ### Planned Sample
 
-120 participants will be recruited on Prolific, an online platform for recruiting research participants. All participants were preselected to meet the following criteria:
+300 participants will be recruited on Prolific, an online platform for recruiting research participants. All participants were preselected to meet the following criteria:
 
 - Country of Residence: United States
 - Ethnicity: White/Caucasian
 
 This sampling frame was chosen to match the demographics for the original study.
 
-The sample size was selected to use the \$300 (TODO: or \$400) credit allotted to the project. The study took about 10 minutes for each participant, for which they were paid $1.67 (at a rate of \$10/hr). (TODO: perform a trial run of the study to get a more accurate time estimate)
+The sample size was selected to achieve roughly 80% power for the power analysis and to stay within budget. The study takes about 6 minutes for each participant, for which they were paid $1.00 (at a rate of \$10/hr).
 
 ### Materials
 
@@ -74,6 +76,8 @@ The original text and survey options for the construal manipulation task can be 
 ### Procedure	
 
 Participants first completed the why-how manipulation of construal level. Next, participants were given a skin cancer health message that either portrayed skin cancer risk as highly changeable or not very changeable. Afterward, participants responded to various questions that assess their motivation to seek additional information and their interpretation of the feedback as useful or not useful. Finally, participants answered a few demographic questions, including a question asking whether or not they tan.
+
+The survey used for Pilot A can be found [here](https://stanforduniversity.qualtrics.com/jfe/form/SV_dpCb7GxEfUlyXBQ).
 
 ### Analysis Plan
 
@@ -112,8 +116,6 @@ I have no idea how this analysis works but I could learn about it and try it!
 
 The original study was conducted on Amazon Mechanical Turk, whereas the replication was done on Prolific, which changes the sampling frame of the replication. In addition, our participants were paid \$1.67 rather than \$0.50. Our sample size is also smaller than the original, which affects our ability to find significant results.
 
-Explicitly describe known differences in sample, setting, procedure, and analysis plan from original study.  The goal, of course, is to minimize those differences, but differences will inevitably occur.  Also, note whether such differences are anticipated to make a difference based on claims in the original article or subsequent published research on the conditions for obtaining the effect.
-
 ### Methods Addendum (Post Data Collection)
 
 You can comment this section out prior to final report with data collection.
@@ -130,9 +132,9 @@ You can comment this section out prior to final report with data collection.
 
 ### Data preparation
 
-Data preparation following the analysis plan. Code is commented out because it has no data to run on yet; see original R Markdown file for (extremely) preliminary code.
+Data preparation following the analysis plan. 
 	
-```{r include=F,echo=TRUE}
+```{r include=FALSE}
 ###Data Preparation
 
 ####Load Relevant Libraries and Functions
@@ -140,24 +142,85 @@ library(rmarkdown)
 library(tidyverse)
 library(knitr)
 library(qualtRics)
+library(afex) # anova functions
+library(emmeans) 
+```
+
+```{r}
+###Data Preparation
 
 ####Import data
-#qualtrics_api_credentials(api_key = "XXX", base_url = "stanforduniversity.ca1.qualtrics.com", install = TRUE)
 
-#raw_data = fetch_survey(surveyID = "TODO", force_request = TRUE)
+# Set Qualtrics credentials
+#qualtrics_api_credentials(api_key = "XX", base_url = "XX", install = TRUE)
+
+raw_data = fetch_survey(surveyID = "SV_5jYY7PcNfCblTrE", force_request = TRUE)
 
 #### Data exclusion / filtering
 
-#filtered_data = raw_data |> filter(is.na(DoNotUse))
+# Filter out participants who...
+filtered_data = raw_data |> 
+  filter(Q2 != "I do not approve") |> # did not consent to the study
+  filter(!is.na(Q35_1)) #  did not make it to the survey portion
+
+# colnames(filtered_data)
 
 #### Prepare data for analysis - create columns etc.
+
+# Remove unneeded columns
+filtered_data = filtered_data |>
+  select(
+    ResponseId,
+    Q7, # high-level construal condition
+    Q20, # low-level construal condition
+    Q32, # high-changeability condition 
+    Q34, # low-changeability condition
+    Q35_1, Q35_2, Q35_3, # DV 1: motivation to seek info
+    Q36_1, Q36_2, Q36_3, Q36_4, Q36_5, Q36_6, Q36_7, Q36_8, Q36_9, Q36_10, Q36_11, Q36_12, # DV 2: perception of health message
+    Q37, # age
+    Q38, # skin cancer history
+    Q39, # tanning
+  ) |>
+  mutate( # reverse scored items
+    Q36_1 = 8 - Q36_1, 
+    Q36_2 = 8 - Q36_2,
+    Q36_3 = 8 - Q36_3, 
+    Q36_4 = 8 - Q36_4
+  )
+
+filtered_data
+
+tidy_d = filtered_data |>
+  transmute(
+    id = ResponseId,
+    construal_level = as.factor(if_else(is.na(Q7), "low", "high")),
+    changeability = as.factor(if_else(is.na(as.character(Q32)), "low", "high")),
+    tans = as.factor(Q39),
+    motivation_to_seek = rowMeans(select(filtered_data, c(Q35_1, Q35_2, Q35_3))),
+    message_perception = rowMeans(select(filtered_data, c(Q36_1, Q36_2, Q36_3, Q36_4, Q36_5, Q36_6, Q36_7, Q36_8, Q36_9, Q36_10, Q36_11, Q36_12,
+    )))
+  )
+
+tidy_d
+
+ggplot(tidy_d,
+  aes(x = changeability, y = motivation_to_seek, fill = construal_level)) +
+  geom_bar(position="dodge", stat="identity") 
 ```
 
 ### Confirmatory analysis
 
-TODO: The extent of my ability to run statistical analyses ends at t-tests, so I plan to chat with a TA this week to learn how to replicate the analyses of interaction effects performed in the original study.
+```{r}
+anova_result = aov_car(motivation_to_seek ~ construal_level * changeability * tans
+                + Error(id), data = tidy_d)
+anova_result
 
-The analyses as specified in the analysis plan.  
+effects_by_type = emmeans(anova_result, ~construal_level|changeability)
+effects_by_type
+
+tests_for_effects = pairs(effects_by_type, adjust="none")
+tests_for_effects
+```
 
 *Side-by-side graph with original graph is ideal here*
 
