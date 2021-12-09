@@ -36,14 +36,15 @@ Project repository (on Github): https://github.com/psych251/belding2015
 
 Original paper (as hosted in your repo): https://github.com/psych251/belding2015/blob/main/original_paper/0146167215580776.pdf
 
+Preregistration: https://osf.io/sb6ax
 
 ## Methods
+
+### Power Analysis
 
 The key analysis of interest that I will be reproducing is the following:
 
 > [W]hen one’s risk was portrayed as changeable, high-level construal (M = 3.95, SD = 1.55) generally increased motivation to get supplementary information relative to low-level construal (M = 3.51, SD = 1.74), F(1, 160) = 7.81, p = .006, d = 0.44 (95% CI = [0.18, 0.70]).
-
-### Power Analysis
 
 A power analysis for an effect size of `f = 0.22` (i.e., `d = 0.44`) using a 2x2x2 fixed effects omnibus ANOVA gives a required sample size of 304 to achieve 80% power, 392 to achieve 90%, and 464 to achieve 95%.
 
@@ -114,58 +115,47 @@ I have no idea how this analysis works but I could learn about it and try it!
 
 ### Differences from Original Study
 
-The original study was conducted on Amazon Mechanical Turk, whereas the replication was done on Prolific, which changes the sampling frame of the replication. In addition, our participants were paid \$1.67 rather than \$0.50. Our sample size is also smaller than the original, which affects our ability to find significant results.
+The original study was conducted on Amazon Mechanical Turk, whereas the replication was done on Prolific, which changes the sampling frame of the replication. In addition, our participants were paid \$1.00 rather than \$0.50. Our sample size is also smaller than the original, which affects our ability to find significant results.
 
 ### Methods Addendum (Post Data Collection)
 
 You can comment this section out prior to final report with data collection.
 
 #### Actual Sample
-  Sample size, demographics, data exclusions based on rules spelled out in analysis plan
+
+The actual sample size of the study was 292. We had the budget to recruit 290 participants on Prolific, and I received three additional submissions that were unaccounted for. Considering that the URL of the final version of the survey was only shared on Prolific and nowhere else, I decided to keep all submissions except one that was incomplete.
 
 #### Differences from pre-data collection methods plan
-  Any differences from what was described as the original plan, or “none”.
+
+I decided not to collect demographic data on gender, and I will not be performing all the analyses laid out in the original analysis plan.
 
 
 ## Results
-
 
 ### Data preparation
 
 Data preparation following the analysis plan. 
 	
-```{r include=FALSE}
-###Data Preparation
-
-####Load Relevant Libraries and Functions
+```{r echo=T, results='hide', message=F}
 library(rmarkdown)
 library(tidyverse)
 library(knitr)
 library(qualtRics)
 library(afex) # anova functions
 library(emmeans) 
-```
-
-```{r}
-###Data Preparation
-
-####Import data
 
 # Set Qualtrics credentials
 #qualtrics_api_credentials(api_key = "XX", base_url = "XX", install = TRUE)
 
-raw_data = fetch_survey(surveyID = "SV_5jYY7PcNfCblTrE", force_request = TRUE)
+raw_data = fetch_survey(surveyID = "SV_9uFliJw5R0Zevae") # force_request = TRUE)
+```
 
-#### Data exclusion / filtering
-
+```{r}
 # Filter out participants who...
 filtered_data = raw_data |> 
   filter(Q2 != "I do not approve") |> # did not consent to the study
-  filter(!is.na(Q35_1)) #  did not make it to the survey portion
-
-# colnames(filtered_data)
-
-#### Prepare data for analysis - create columns etc.
+  filter(!is.na(Q35_1)) |> #  did not finish the Likert scale questions
+  filter(!is.na(Q36_1))
 
 # Remove unneeded columns
 filtered_data = filtered_data |>
@@ -180,6 +170,7 @@ filtered_data = filtered_data |>
     Q37, # age
     Q38, # skin cancer history
     Q39, # tanning
+    `Duration (in seconds)`
   ) |>
   mutate( # reverse scored items
     Q36_1 = 8 - Q36_1, 
@@ -188,27 +179,41 @@ filtered_data = filtered_data |>
     Q36_4 = 8 - Q36_4
   )
 
-filtered_data
-
+# Rename columns and transform data in preparation for analysis
 tidy_d = filtered_data |>
   transmute(
     id = ResponseId,
-    construal_level = as.factor(if_else(is.na(Q7), "low", "high")),
-    changeability = as.factor(if_else(is.na(as.character(Q32)), "low", "high")),
-    tans = as.factor(Q39),
+    construal_level = as.factor(if_else(is.na(Q7), "Low-level Construal", "High-level Construal")),
+    changeability = as.factor(if_else(is.na(as.character(Q32)), "Low Changeability", "High Changeability")),
+    tans = as.factor(if_else(Q39 == "Yes", "Tanners", "Non-tanners")),
     motivation_to_seek = rowMeans(select(filtered_data, c(Q35_1, Q35_2, Q35_3))),
-    message_perception = rowMeans(select(filtered_data, c(Q36_1, Q36_2, Q36_3, Q36_4, Q36_5, Q36_6, Q36_7, Q36_8, Q36_9, Q36_10, Q36_11, Q36_12,
-    )))
+    message_perception = rowMeans(select(filtered_data, c(Q36_1, Q36_2, Q36_3, Q36_4, Q36_5, Q36_6, Q36_7, Q36_8, Q36_9, Q36_10, Q36_11, Q36_12,))),
+    seconds_spent = `Duration (in seconds)`
   )
+# reorder factors to order in plot
+tidy_d$construal_level = factor(tidy_d$construal_level, levels = c("Low-level Construal", "High-level Construal"))
+tidy_d$changeability = factor(tidy_d$changeability, levels = c("Low Changeability", "High Changeability"))
 
 tidy_d
 
-ggplot(tidy_d,
-  aes(x = changeability, y = motivation_to_seek, fill = construal_level)) +
-  geom_bar(position="dodge", stat="identity") 
+# Create a table of summary statistics
+summary_d = tidy_d |>
+  group_by(construal_level, changeability, tans) |>
+  summarize(
+    mean_motivation_to_seek = mean(motivation_to_seek),
+    se_motivation_to_seek = sd(motivation_to_seek) / sqrt(n()),
+    mean_message_perception = mean(message_perception),
+    se_message_perception = sd(message_perception) / sqrt(n()),
+  )
+
+summary_d
 ```
 
 ### Confirmatory analysis
+
+For the confirmatory analysis, I tried to reproduce this key analysis of interest:
+
+> [W]hen one’s risk was portrayed as changeable, high-level construal (M = 3.95, SD = 1.55) generally increased motivation to get supplementary information relative to low-level construal (M = 3.51, SD = 1.74), F(1, 160) = 7.81, p = .006, d = 0.44 (95% CI = [0.18, 0.70]).
 
 ```{r}
 anova_result = aov_car(motivation_to_seek ~ construal_level * changeability * tans
@@ -222,18 +227,89 @@ tests_for_effects = pairs(effects_by_type, adjust="none")
 tests_for_effects
 ```
 
-*Side-by-side graph with original graph is ideal here*
+I also plotted the mean motivation to seek more information after reading the skin cancer health message for each of the combinations in the 2x2x2.
+
+```{r}
+ggplot(summary_d,
+  aes(x = tans, y = mean_motivation_to_seek, fill = construal_level)) +
+  geom_bar(position="dodge", stat="summary") +
+  scale_y_continuous("Post-feedback Information Search Motivation", c(1,2,3,4,5,6,7), NULL, c(1,7)) +
+  xlab(NULL) +
+  labs(fill = NULL) +
+  geom_errorbar(
+    aes(
+      ymin = mean_motivation_to_seek - se_motivation_to_seek,
+      ymax = mean_motivation_to_seek + se_motivation_to_seek,
+    ),
+    position = position_dodge(width = 0.9),
+    width = 0.4
+  ) +
+  facet_grid(~changeability)
+```
+
+The above plot comes from the data from this replication, while the below plot is taken from the original paper. Unfortunately, I was not able to locate all the exact means and standard deviations used to create the original plot, so I was unable to replot the original to make our plots consistent in appearance. Error bars represent standard error of the mean.
+
+![](images/3a_post-feedback_search_motivation.png)
 
 ### Exploratory analyses
 
-Any follow-up analyses desired (not required).  
+#### The original authors reported the following result that did replicate in their Study 3B. Are we able to replicate it?
+
+> When one’s risk is portrayed as changeable, tanners who engaged in high-level construal were generally more motivated to seek additional information relative to low-level.
+
+```{r}
+effects_by_type = emmeans(anova_result, ~construal_level|changeability:tans)
+effects_by_type
+
+tests_for_effects = pairs(effects_by_type, adjust="none")
+tests_for_effects
+```
+
+#### Did any of our independent variables affect how participants perceived the skin cancer health message?
+
+```{r}
+message_perception_anova_result = aov_car(message_perception ~ construal_level * changeability * tans
+                + Error(id), data = tidy_d)
+message_perception_anova_result
+
+t.test(message_perception ~ construal_level, tidy_d, paired = FALSE)
+t.test(message_perception ~ changeability, tidy_d, paired = FALSE)
+t.test(message_perception ~ tans, tidy_d, paired = FALSE)
+```
+
+#### How many tanners participated compared to non-tanners? 
+
+The original study reported recruiting 64 tanners out of 309 participants.
+
+```{r}
+tanner_counts = tidy_d |>
+  group_by(tans) |>
+  summarize(n = n())
+tanner_counts
+```
+
+#### How much time did participants spend on the survey?
+
+```{r}
+median(tidy_d$seconds_spent)
+```
 
 ## Discussion
 
 ### Summary of Replication Attempt
 
-Open the discussion section with a paragraph summarizing the primary result from the confirmatory analysis and the assessment of whether it replicated, partially replicated, or failed to replicate the original result.  
+I was unable to replicate my key result of interest--when one's risk of skin cancer was portrayed as changeable, there was no significant difference in motivation to get supplementary information between the two construal level conditions. Additionally, I found no significant interactions between construal level, changeability, and tanning status.
 
 ### Commentary
 
-Add open-ended commentary (if any) reflecting (a) insights from follow-up exploratory analysis, (b) assessment of the meaning of the replication (or not) - e.g., for a failure to replicate, are the differences between original and present study ones that definitely, plausibly, or are unlikely to have been moderators of the result, and (c) discussion of any objections or challenges raised by the current and original authors about the replication attempt.  None of these need to be long.
+There are various reasons that could explain why I was not able to replicate the results from the original study. First, the study was a single-vignette study that tried to induce a change within participants, and these kinds of studies tend not to replicate easily. 
+
+Second, participants spent a median of only 6.05 minutes on the survey. It is possible that participants needed to spend more time engaging meaningfully with the construal level manipulation activity in order to see an effect. Unfortunately, I don't have breakdowns of time spent for different parts of the survey, so I am unable to check for patterns there.
+
+I had wondered if the lack of significant effects on the tanning dimension could be due to a lack of tanners recruited, but we actually recruited proportionally more tanners than the original study (77/292, 26.3\%; compared to 64/309, 20.7\%).
+
+In my exploratory analyses, I was able to replicate the following result from the original paper:
+
+> Those who were led to believe that skin cancer risk was changeable rather than unchangeable were more likely to interpret the author’s intentions as helpful rather than threatening.
+
+A t-test comparing the Likert scale scores of how helpful the skin cancer risk message was between the high changeability (M = 6.13) and low changeability (M = 5.83) conditions found a very significant difference, t = -3.22, p = 0.001.
